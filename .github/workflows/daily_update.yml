@@ -1,0 +1,51 @@
+name: Update Daily Feed
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  update-feed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Fetch Data and Generate Posts
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          POST_FILE="posts/$DATE.html"
+          JSON_FILE="feeds/latest.json"
+          RSS_FILE="feeds/rss.xml"
+
+          mkdir -p posts feeds
+
+          # Fetch Latest News from NewsAPI
+          NEWS=$(curl -s "https://newsapi.org/v2/top-headlines?country=in&apiKey=YOUR_NEWSAPI_KEY" | jq -r '.articles[0:5] | map("<li><a href=\"" + .url + "\">" + .title + "</a></li>") | join("\n")')
+
+          # Fetch Top Reddit Posts
+          REDDIT=$(curl -s "https://www.reddit.com/r/worldnews/top.json?limit=5" | jq -r '.data.children | map("<li><a href=\"" + .data.url + "\">" + .data.title + "</a></li>") | join("\n")')
+
+          # Fetch Crypto Prices
+          BTC_PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd" | jq -r '.bitcoin.usd')
+          ETH_PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd" | jq -r '.ethereum.usd')
+
+          # Fetch Wikipedia Random Article
+          WIKI=$(curl -s "https://en.wikipedia.org/api/rest_v1/page/random/summary" | jq -r '"<h3>" + .title + "</h3><p>" + .extract + "</p><a href=\"" + .content_urls.desktop.page + "\">Read more</a>"')
+
+          # Generate HTML Post
+          echo "<h2>Daily Update - $DATE</h2>" > $POST_FILE
+          echo "<h3>Latest News</h3><ul>$NEWS</ul>" >> $POST_FILE
+          echo "<h3>Top Reddit Posts</h3><ul>$REDDIT</ul>" >> $POST_FILE
+          echo "<h3>Crypto Prices</h3><p>Bitcoin: $$BTC_PRICE, Ethereum: $$ETH_PRICE</p>" >> $POST_FILE
+          echo "<h3>Random Wikipedia Article</h3>$WIKI" >> $POST_FILE
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add posts/
+          git add feeds/
+          git commit -m "Automated daily update for $(date +"%Y-%m-%d")"
+          git push origin main
