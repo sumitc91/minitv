@@ -1,0 +1,61 @@
+name: Update Stock Market Prices
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Runs daily at 03:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update-stocks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Date Variables
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          POST_FILE="posts/stocks/$DATE.html"
+          mkdir -p posts/stocks
+
+      - name: Fetch Stock Market Prices
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          POST_FILE="posts/stocks/$DATE.html"
+
+          echo '<!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <meta name="description" content="Daily stock market prices for '"$DATE"'.">
+              <meta name="keywords" content="stocks, NASDAQ, S&P 500, Dow Jones, stock prices, daily update">
+              <meta name="author" content="MiniTV">
+              <title>Stock Market Prices - '"$DATE"'</title>
+              <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+              <style>
+                  body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
+                  .container { max-width: 900px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+                  h1 { text-align: center; }
+                  .stock-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fff; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>📈 Stock Market Prices - '"$DATE"'</h1>' > $POST_FILE
+
+          # Fetch Stock Prices
+          echo "Fetching stock market data..."
+          STOCKS=$(curl -s "https://financialmodelingprep.com/api/v3/quote/AAPL,GOOG,AMZN,MSFT?apikey=${{ secrets.STOCKS_API_KEY }}")
+
+          echo "$STOCKS" | jq -r '.[] | "<div class=\"stock-card\"><h2>" + .name + " ($" + (.price | tostring) + ")</h2></div>"' >> $POST_FILE
+
+          echo "</div></body></html>" >> $POST_FILE
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add posts/stocks/
+          git commit -m "Updated stock prices for $(date +"%Y-%m-%d")" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/sumitc91/minitv.git main || echo "No changes to push"
