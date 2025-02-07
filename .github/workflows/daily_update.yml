@@ -22,17 +22,43 @@ jobs:
           mkdir -p posts feeds
 
           # Fetch Latest News from NewsAPI
-          NEWS=$(curl -s "https://newsapi.org/v2/top-headlines?country=in&apiKey=${{ secrets.NEWSAPI_KEY }}" | jq -r 'if .articles then .articles[0:5] | map("<li><a href=\"" + .url + "\">" + .title + "</a></li>") | join("\n") else "<li>No news available</li>" end')
+          NEWS=$(curl -s "https://newsapi.org/v2/top-headlines?country=in&apiKey=${{ secrets.NEWSAPI_KEY }}" | jq -r '
+            if .articles then 
+              .articles[0:5] | map("<li><a href=\"" + .url + "\">" + .title + "</a></li>") | join("\n") 
+            else 
+              "<li>No news available</li>" 
+            end')
 
           # Fetch Top Reddit Posts
-          REDDIT=$(curl -s "https://www.reddit.com/r/worldnews/top.json?limit=5" | jq -r '.data.children | map("<li><a href=\"" + .data.url + "\">" + .data.title + "</a></li>") | join("\n")')
+          REDDIT=$(curl -s "https://www.reddit.com/r/worldnews/top.json?limit=5" | jq -r '
+            if .data.children then 
+              .data.children | map("<li><a href=\"" + .data.url + "\">" + .data.title + "</a></li>") | join("\n") 
+            else 
+              "<li>No Reddit posts available</li>" 
+            end')
 
           # Fetch Crypto Prices
-          BTC_PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd" | jq -r '.bitcoin.usd')
-          ETH_PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd" | jq -r '.ethereum.usd')
+          BTC_PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd" | jq -r '
+            if .bitcoin then 
+              .bitcoin.usd 
+            else 
+              "N/A" 
+            end')
+
+          ETH_PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd" | jq -r '
+            if .ethereum then 
+              .ethereum.usd 
+            else 
+              "N/A" 
+            end')
 
           # Fetch Wikipedia Random Article
-          WIKI=$(curl -s "https://en.wikipedia.org/api/rest_v1/page/random/summary" | jq -r '"<h3>" + .title + "</h3><p>" + .extract + "</p><a href=\"" + .content_urls.desktop.page + "\">Read more</a>"')
+          WIKI=$(curl -s "https://en.wikipedia.org/api/rest_v1/page/random/summary" | jq -r '
+            if .title then 
+              "<h3>" + .title + "</h3><p>" + .extract + "</p><a href=\"" + .content_urls.desktop.page + "\">Read more</a>" 
+            else 
+              "<h3>No Wikipedia article found</h3>" 
+            end')
 
           # Generate HTML Post
           echo "<h2>Daily Update - $DATE</h2>" > $POST_FILE
@@ -41,11 +67,25 @@ jobs:
           echo "<h3>Crypto Prices</h3><p>Bitcoin: $$BTC_PRICE, Ethereum: $$ETH_PRICE</p>" >> $POST_FILE
           echo "<h3>Random Wikipedia Article</h3>$WIKI" >> $POST_FILE
 
+          # Generate JSON Feed
+          echo "{
+            \"date\": \"$DATE\",
+            \"news\": \"$NEWS\",
+            \"reddit\": \"$REDDIT\",
+            \"crypto\": { \"bitcoin\": \"$BTC_PRICE\", \"ethereum\": \"$ETH_PRICE\" },
+            \"wiki\": \"$WIKI\"
+          }" > $JSON_FILE
+
+          # Generate RSS Feed
+          echo '<?xml version="1.0" encoding="UTF-8" ?><rss version="2.0"><channel><title>MiniTV Daily Updates</title><link>https://minitv.co.in</link><description>Latest trends, news, crypto, and more.</description>' > $RSS_FILE
+          echo "<item><title>Daily Update - $DATE</title><link>https://minitv.co.in/posts/$DATE.html</link><description><![CDATA[$NEWS $REDDIT <p>Bitcoin: $$BTC_PRICE, Ethereum: $$ETH_PRICE</p> $WIKI]]></description></item>" >> $RSS_FILE
+          echo "</channel></rss>" >> $RSS_FILE
+
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add posts/
           git add feeds/
-          git commit -m "Automated daily update for $(date +"%Y-%m-%d")"
-          git push origin main
+          git commit -m "Automated daily update for $(date +"%Y-%m-%d")" || echo "No changes to commit"
+          git push origin main || echo "No changes to push"
