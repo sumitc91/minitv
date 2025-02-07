@@ -23,6 +23,13 @@ jobs:
           DATE=$(date +"%Y-%m-%d")
           POST_FILE="posts/stocks/$DATE.html"
 
+          echo "Fetching stock market data..."
+          RESPONSE=$(curl -s "https://financialmodelingprep.com/api/v3/quote/AAPL,GOOG,AMZN,MSFT?apikey=${{ secrets.STOCKS_API_KEY }}")
+          echo "Raw Stock Market Response: $RESPONSE"  # Debugging output
+
+          # Save response for manual debugging
+          echo "$RESPONSE" > stock_market_response.json
+
           echo '<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -44,11 +51,8 @@ jobs:
               <div class="container">
                   <h1>📈 Stock Market Prices - '"$DATE"'</h1>' > $POST_FILE
 
-          # Fetch Stock Prices
-          echo "Fetching stock market data..."
-          STOCKS=$(curl -s "https://financialmodelingprep.com/api/v3/quote/AAPL,GOOG,AMZN,MSFT?apikey=${{ secrets.STOCKS_API_KEY }}")
-
-          echo "$STOCKS" | jq -r '.[] | "<div class=\"stock-card\"><h2>" + .name + " ($" + (.price | tostring) + ")</h2></div>"' >> $POST_FILE
+          # Parse Stock Data & Generate HTML
+          echo "$RESPONSE" | jq -r '.[] | "<div class=\"stock-card\"><h2>" + .name + " ($" + (.price | tostring) + ")</h2><p>Symbol: " + .symbol + "</p></div>"' >> $POST_FILE
 
           echo "</div></body></html>" >> $POST_FILE
 
