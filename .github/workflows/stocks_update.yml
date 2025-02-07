@@ -23,6 +23,19 @@ jobs:
           DATE=$(date +"%Y-%m-%d")
           POST_FILE="posts/stocks/$DATE.html"
 
+          echo "Fetching stock market data..."
+          RESPONSE=$(curl -s "https://financialmodelingprep.com/api/v3/quote/AAPL,GOOG,AMZN,MSFT?apikey=${{ secrets.STOCKS_API_KEY }}")
+          echo "Raw API Response: $RESPONSE"  # Debugging output
+
+          # Save the response to a file for further inspection
+          echo "$RESPONSE" > stock_market_response.json
+
+          # Check if response is valid JSON
+          if ! echo "$RESPONSE" | jq empty; then
+            echo "Error: Invalid JSON response received from API"
+            exit 1
+          fi
+
           echo '<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -44,11 +57,13 @@ jobs:
               <div class="container">
                   <h1>📈 Stock Market Prices - '"$DATE"'</h1>' > $POST_FILE
 
-          # Fetch Stock Prices
-          echo "Fetching stock market data..."
-          STOCKS=$(curl -s "https://financialmodelingprep.com/api/v3/quote/AAPL,GOOG,AMZN,MSFT?apikey=${{ secrets.STOCKS_API_KEY }}")
-
-          echo "$STOCKS" | jq -r '.[] | "<div class=\"stock-card\"><h2>" + .name + " ($" + (.price | tostring) + ")</h2></div>"' >> $POST_FILE
+          # Parse Stock Data Correctly
+          echo "$RESPONSE" | jq -r '
+            if type=="array" and length>0 then
+              .[] | "<div class=\"stock-card\"><h2>" + .name + " ($" + (.price | tostring) + ")</h2><p>Symbol: " + .symbol + "</p></div>"
+            else
+              "<p>Error: No valid stock data found</p>"
+            end' >> $POST_FILE
 
           echo "</div></body></html>" >> $POST_FILE
 
