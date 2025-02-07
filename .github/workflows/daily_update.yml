@@ -22,7 +22,7 @@ jobs:
           mkdir -p posts feeds
 
           # Fetch Latest News from NewsAPI
-          NEWS=$(curl -s "https://newsapi.org/v2/top-headlines?country=in&apiKey=35a817a862c4480cbe4ad96f2303cb82" | jq -r '.articles[0:5] | map("<li><a href=\"" + .url + "\">" + .title + "</a></li>") | join("\n")')
+          NEWS=$(curl -s "https://newsapi.org/v2/top-headlines?country=in&apiKey=${{ secrets.NEWSAPI_KEY }}" | jq -r 'if .articles then .articles[0:5] | map("<li><a href=\"" + .url + "\">" + .title + "</a></li>") | join("\n") else "<li>No news available</li>" end')
 
           # Fetch Top Reddit Posts
           REDDIT=$(curl -s "https://www.reddit.com/r/worldnews/top.json?limit=5" | jq -r '.data.children | map("<li><a href=\"" + .data.url + "\">" + .data.title + "</a></li>") | join("\n")')
