@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MiniTV - Latest Trends</title>
+    <meta name="description" content="Stay updated with daily trending content, news, and crypto prices.">
+</head>
+<body>
+    <h1>Welcome to MiniTV</h1>
+    <ul id="post-list"></ul>
+    <script>
+    fetch('https://api.github.com/repos/your-github-username/minitv/contents/posts')
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(file => {
+            let li = document.createElement('li');
+            li.innerHTML = `<a href="posts/${file.name}">${file.name.replace('.html', '')}</a>`;
+            document.getElementById('post-list').appendChild(li);
+        });
+    });
+    </script>
+</body>
+</html>
