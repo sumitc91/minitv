@@ -16,22 +16,22 @@ jobs:
         run: |
           DATE=$(date +"%Y-%m-%d")
           POST_FILE="posts/$DATE.html"
+          AMP_FILE="amp/$DATE.html"
+          mkdir -p posts amp
           echo "Today's Post File: $POST_FILE"
+          echo "Today's AMP File: $AMP_FILE"
 
-      - name: Delete Existing Post (if exists)
+      - name: Delete Existing Posts (if exists)
         run: |
-          if [ -f "$POST_FILE" ]; then
-            echo "Post already exists. Deleting..."
-            rm "$POST_FILE"
-          else
-            echo "No existing post found. Creating a new one."
-          fi
+          if [ -f "$POST_FILE" ]; then rm "$POST_FILE"; fi
+          if [ -f "$AMP_FILE" ]; then rm "$AMP_FILE"; fi
 
-      - name: Fetch News from Multiple Countries
+      - name: Fetch News from Multiple Countries and Generate Pages
         run: |
           DATE=$(date +"%Y-%m-%d")
           POST_FILE="posts/$DATE.html"
-          mkdir -p posts
+          AMP_FILE="amp/$DATE.html"
+          mkdir -p posts amp
 
           echo "Fetching global news..."
 
@@ -52,24 +52,35 @@ jobs:
               <meta name="robots" content="index, follow">
               <title>Daily News - '"$DATE"'</title>
               <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+              <link rel="amphtml" href="https://minitv.co.in/'"$AMP_FILE"'">
               <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-              <style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🌍 Global News - '"$DATE"'</h1>' > $POST_FILE
+
+          # Start AMP File
+          echo '<!DOCTYPE html>
+          <html ⚡ lang="en">
+          <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+              <meta name="description" content="AMP version of latest news for '"$DATE"'">
+              <meta name="keywords" content="news, amp, fast news, mobile news, google amp">
+              <meta name="author" content="MiniTV">
+              <title>AMP News - '"$DATE"'</title>
+              <link rel="canonical" href="https://minitv.co.in/'"$POST_FILE"'">
+              <script async src="https://cdn.ampproject.org/v0.js"></script>
+              <style amp-custom>
                   body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
                   .container { max-width: 900px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
                   h1 { text-align: center; margin-bottom: 20px; }
-                  h3 { margin-top: 20px; color: #333; }
                   .news-card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fff; }
-                  .news-title { font-size: 18px; font-weight: bold; }
-                  .news-source { font-size: 14px; color: #555; }
-                  .news-description { margin-top: 10px; font-size: 16px; }
-                  .news-img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-top: 10px; }
-                  .ads-container { text-align: center; margin: 20px 0; }
               </style>
           </head>
           <body>
               <div class="container">
-                  <h1>🌍 Global News - '"$DATE"'</h1>
-                  <p>Stay updated with the latest headlines from different countries, with full details and images.</p>' > $POST_FILE
+                  <h1>🚀 AMP News - '"$DATE"'</h1>' > $AMP_FILE
 
           # Fetch Global News
           for COUNTRY in "${COUNTRIES[@]}"; do
@@ -77,49 +88,44 @@ jobs:
             RESPONSE=$(curl -s "https://newsapi.org/v2/top-headlines?country=$COUNTRY&apiKey=${{ secrets.NEWSAPI_KEY }}")
 
             ARTICLES=$(echo "$RESPONSE" | jq -c '.articles[]')
-            
+
             COUNTRY_NAME=$(echo "$COUNTRY" | tr '[:lower:]' '[:upper:]')
             echo "<h2>🌍 Top News from $COUNTRY_NAME</h2>" >> $POST_FILE
+            echo "<h2>🌍 Top News from $COUNTRY_NAME</h2>" >> $AMP_FILE
 
-            # Loop through each news article
             while IFS= read -r article; do
               TITLE=$(echo "$article" | jq -r '.title // "No title available"')
               SOURCE_NAME=$(echo "$article" | jq -r '.source.name // "Unknown Source"')
               AUTHOR=$(echo "$article" | jq -r '.author // "Unknown Author"')
               DESCRIPTION=$(echo "$article" | jq -r '.description // "No description available"')
-              URL=$(echo "$article" | jq -r '.url // "#"')
               IMAGE=$(echo "$article" | jq -r '.urlToImage // "https://via.placeholder.com/800x400?text=No+Image"')
-              PUBLISHED_DATE=$(echo "$article" | jq -r '.publishedAt // "Unknown Date"')
 
+              # Normal HTML News Card
               echo "<div class='news-card'>
-                        <h3 class='news-title'><a href='$URL' target='_blank'>$TITLE</a></h3>
-                        <p class='news-source'>Source: $SOURCE_NAME | Author: $AUTHOR | Published: $PUBLISHED_DATE</p>
+                        <h3>$TITLE</h3>
+                        <p>Source: $SOURCE_NAME | Author: $AUTHOR</p>
                         <img src='$IMAGE' class='news-img' alt='News Image'>
-                        <p class='news-description'>$DESCRIPTION</p>
+                        <p>$DESCRIPTION</p>
                     </div>" >> $POST_FILE
+
+              # AMP News Card
+              echo "<div class='news-card'>
+                        <h3>$TITLE</h3>
+                        <p>Source: $SOURCE_NAME | Author: $AUTHOR</p>
+                        <amp-img src='$IMAGE' width='800' height='400' layout='responsive'></amp-img>
+                        <p>$DESCRIPTION</p>
+                    </div>" >> $AMP_FILE
+
             done <<< "$ARTICLES"
           done
 
-          echo '<div class="ads-container">
-              <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-              <ins class="adsbygoogle"
-                  style="display:block"
-                  data-ad-client="YOUR_ADSENSE_CLIENT_ID"
-                  data-ad-slot="YOUR_ADSENSE_AD_SLOT"
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"></ins>
-              <script>
-                  (adsbygoogle = window.adsbygoogle || []).push({});
-              </script>
-          </div>
-          </div>
-          </body>
-          </html>' >> $POST_FILE
+          echo '</div></body></html>' >> $POST_FILE
+          echo '</div></body></html>' >> $AMP_FILE
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add posts/
-          git commit -m "Automated full news update for $(date +"%Y-%m-%d")" || echo "No changes to commit"
+          git add posts/ amp/
+          git commit -m "Automated news update with AMP pages for $(date +"%Y-%m-%d")" || echo "No changes to commit"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/sumitc91/minitv.git main || echo "No changes to push"
