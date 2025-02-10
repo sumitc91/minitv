@@ -17,6 +17,28 @@ jobs:
           HOME_FILE="index.html"
           echo "Updating Home Page: $HOME_FILE"
 
+      - name: Fetch Latest Stock & Crypto Prices
+        run: |
+          # Fetch Stock Market Prices
+          STOCK_DATA=$(curl -s "https://financialmodelingprep.com/api/v3/quote/NDAQ,GSPC,DJI?apikey=${{ secrets.STOCKS_API_KEY }}")
+          NASDAQ=$(echo "$STOCK_DATA" | jq -r '.[] | select(.symbol=="NDAQ") | .price')
+          SP500=$(echo "$STOCK_DATA" | jq -r '.[] | select(.symbol=="GSPC") | .price')
+          DOWJONES=$(echo "$STOCK_DATA" | jq -r '.[] | select(.symbol=="DJI") | .price')
+
+          # Fetch Cryptocurrency Prices
+          CRYPTO_DATA=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,dogecoin&vs_currencies=usd")
+          BTC_PRICE=$(echo "$CRYPTO_DATA" | jq -r '.bitcoin.usd')
+          ETH_PRICE=$(echo "$CRYPTO_DATA" | jq -r '.ethereum.usd')
+          DOGE_PRICE=$(echo "$CRYPTO_DATA" | jq -r '.dogecoin.usd')
+
+          # Save Variables for Use in Home Page
+          echo "NASDAQ=$NASDAQ" >> $GITHUB_ENV
+          echo "SP500=$SP500" >> $GITHUB_ENV
+          echo "DOWJONES=$DOWJONES" >> $GITHUB_ENV
+          echo "BTC_PRICE=$BTC_PRICE" >> $GITHUB_ENV
+          echo "ETH_PRICE=$ETH_PRICE" >> $GITHUB_ENV
+          echo "DOGE_PRICE=$DOGE_PRICE" >> $GITHUB_ENV
+
       - name: Generate Home Page
         run: |
           HOME_FILE="index.html"
@@ -78,12 +100,10 @@ jobs:
 
           echo '</ul>
                   <h2>📊 Stock Market Updates</h2>
-                  <p>🔴 NASDAQ: 14,205.15 | 🔵 S&P 500: 4,501.50 | 🟢 Dow Jones: 35,123.50</p>
-                  <a href="/posts/stocks.html">View Stock Market Updates</a>
+                  <p>🔴 NASDAQ: '"$NASDAQ"' | 🔵 S&P 500: '"$SP500"' | 🟢 Dow Jones: '"$DOWJONES"'</p>
 
                   <h2>💰 Cryptocurrency Prices</h2>
-                  <p>🔥 Bitcoin: $42,500 | 🚀 Ethereum: $2,950 | 🌐 Dogecoin: $0.07</p>
-                  <a href="/posts/crypto.html">View Crypto Market Updates</a>
+                  <p>🔥 Bitcoin: $'"$BTC_PRICE"' | 🚀 Ethereum: $'"$ETH_PRICE"' | 🌐 Dogecoin: $'"$DOGE_PRICE"'</p>
 
                   <div class="ads-container">
                       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
