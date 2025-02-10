@@ -2,22 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MiniTV - Latest Trends</title>
-    <meta name="description" content="Stay updated with daily trending content, news, and crypto prices.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MiniTV - Your daily source for news, crypto, and stock market updates. Stay updated with the latest trends.">
+    <meta name="keywords" content="news, world news, crypto prices, stock market, latest updates">
+    <meta name="author" content="MiniTV">
+    <meta property="og:title" content="MiniTV - Daily News and Updates">
+    <meta property="og:description" content="Get the latest news, cryptocurrency prices, and stock market updates on MiniTV.">
+    <meta name="robots" content="index, follow">
+    <title>MiniTV - Latest News, Crypto & Stocks</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MSBCXJPYV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-9MSBCXJPYV");
+    </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
+
 </head>
 <body>
-    <h1>Welcome to MiniTV</h1>
-    <ul id="post-list"></ul>
-    <script>
-    fetch('https://api.github.com/repos/your-github-username/minitv/contents/posts')
-    .then(response => response.json())
-    .then(data => {
-        data.forEach(file => {
-            let li = document.createElement('li');
-            li.innerHTML = `<a href="posts/${file.name}">${file.name.replace('.html', '')}</a>`;
-            document.getElementById('post-list').appendChild(li);
-        });
-    });
-    </script>
+    <div class="container">
+        <h1>🚀 Welcome to MiniTV!</h1>
+        <p>Your daily source for News, Crypto, and Stock Updates.</p>
+
+        <h2>📢 Latest Daily News</h2>
+        <ul id="latest-news">
+<script>
+      fetch("sitemap.xml")
+      .then(response => response.text())
+      .then(data => {
+          let parser = new DOMParser();
+          let xml = parser.parseFromString(data, "text/xml");
+          let urls = xml.getElementsByTagName("loc");
+          let ul = document.getElementById("latest-news");
+          for (let i = 1; i < urls.length && i < 6; i++) { // Show last 5 news updates
+              let li = document.createElement("li");
+              let a = document.createElement("a");
+              a.href = urls[i].textContent;
+              a.textContent = urls[i].textContent.split("/").pop().replace(".html", "").replace("-", " ");
+              li.appendChild(a);
+              ul.appendChild(li);
+          }
+      });
+      </script>
+</ul>
+        <h2>📊 Stock Market Updates</h2>
+        <p>🔴 NASDAQ: 14,205.15 | 🔵 S&P 500: 4,501.50 | 🟢 Dow Jones: 35,123.50</p>
+        <a href="/posts/stocks.html">View Stock Market Updates</a>
+
+        <h2>💰 Cryptocurrency Prices</h2>
+        <p>🔥 Bitcoin: $42,500 | 🚀 Ethereum: $2,950 | 🌐 Dogecoin: $0.07</p>
+        <a href="/posts/crypto.html">View Crypto Market Updates</a>
+
+        <div class="ads-container">
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-1068871795581451"
+                data-ad-slot="YOUR_ADSENSE_AD_SLOT"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+    </div>
 </body>
 </html>
