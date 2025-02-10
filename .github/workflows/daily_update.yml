@@ -16,8 +16,8 @@ jobs:
         run: |
           DATE=$(date +"%Y-%m-%d")
           POST_FILE="posts/$DATE.html"
-          AMP_FILE="amp/$DATE.html"
-          mkdir -p posts amp
+          AMP_FILE="posts/amp/$DATE.html"
+          mkdir -p posts/amp
           echo "Today's Post File: $POST_FILE"
           echo "Today's AMP File: $AMP_FILE"
 
@@ -30,15 +30,14 @@ jobs:
         run: |
           DATE=$(date +"%Y-%m-%d")
           POST_FILE="posts/$DATE.html"
-          AMP_FILE="amp/$DATE.html"
-          mkdir -p posts amp
+          AMP_FILE="posts/amp/$DATE.html"
 
           echo "Fetching global news..."
 
           # Define country codes
           COUNTRIES=("us" "in" "gb" "ca" "au" "de" "fr" "jp")
 
-          # Start HTML File
+          # Start HTML File (Normal Page)
           echo '<!DOCTYPE html>
           <html lang="en">
           <head>
@@ -53,13 +52,25 @@ jobs:
               <title>Daily News - '"$DATE"'</title>
               <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
               <link rel="amphtml" href="https://minitv.co.in/'"$AMP_FILE"'">
-              <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+              <!-- Google Analytics -->
+              <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MSBCXJPYV"></script>
+              <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag("js", new Date());
+                gtag("config", "G-9MSBCXJPYV");
+              </script>
+
+              <!-- Google AdSense -->
+              <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
+
           </head>
           <body>
               <div class="container">
                   <h1>🌍 Global News - '"$DATE"'</h1>' > $POST_FILE
 
-          # Start AMP File
+          # Start AMP File (inside posts/amp/)
           echo '<!DOCTYPE html>
           <html ⚡ lang="en">
           <head>
@@ -71,6 +82,27 @@ jobs:
               <title>AMP News - '"$DATE"'</title>
               <link rel="canonical" href="https://minitv.co.in/'"$POST_FILE"'">
               <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+              <!-- Google Analytics (AMP) -->
+              <amp-analytics type="googleanalytics">
+                <script type="application/json">
+                {
+                  "vars": {
+                    "account": "G-9MSBCXJPYV"
+                  },
+                  "triggers": {
+                    "trackPageview": {
+                      "on": "visible",
+                      "request": "pageview"
+                    }
+                  }
+                }
+                </script>
+              </amp-analytics>
+
+              <!-- Google AdSense (AMP) -->
+              <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
+
               <style amp-custom>
                   body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
                   .container { max-width: 900px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
@@ -126,6 +158,6 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add posts/ amp/
-          git commit -m "Automated news update with AMP pages for $(date +"%Y-%m-%d")" || echo "No changes to commit"
+          git add posts/
+          git commit -m "Automated news update with AMP pages and AdSense for $(date +"%Y-%m-%d")" || echo "No changes to commit"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/sumitc91/minitv.git main || echo "No changes to push"
