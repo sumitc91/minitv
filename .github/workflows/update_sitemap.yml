@@ -1,0 +1,44 @@
+name: Update Sitemap
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Runs daily at 2:00 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Generate Sitemap
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+          
+          # Add homepage to the sitemap
+          echo '<url><loc>https://minitv.co.in/</loc><lastmod>'"$DATE"'</lastmod><priority>1.0</priority></url>' >> sitemap.xml
+
+          # Add post pages to sitemap
+          for POST in $(ls posts/*.html); do
+            POST_URL="https://minitv.co.in/$POST"
+            echo '<url><loc>'"$POST_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.8</priority></url>' >> sitemap.xml
+          done
+
+          # Add AMP pages to sitemap
+          for AMP_POST in $(ls posts/amp/*.html); do
+            AMP_URL="https://minitv.co.in/$AMP_POST"
+            echo '<url><loc>'"$AMP_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.6</priority></url>' >> sitemap.xml
+          done
+
+          echo '</urlset>' >> sitemap.xml
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add sitemap.xml
+          git commit -m "Updated sitemap for $(date +"%Y-%m-%d")" || echo "No changes to commit"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/sumitc91/minitv.git main || echo "No changes to push"
