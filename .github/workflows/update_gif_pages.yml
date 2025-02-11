@@ -22,6 +22,10 @@ jobs:
 
           GIF_PAGE=$(jq '.gifs + 1' "$PAGE_TRACKER")
 
+          if [ "$GIF_PAGE" -lt 1 ]; then
+            GIF_PAGE=1
+          fi
+
           jq --argjson gif "$GIF_PAGE" '.gifs = $gif' "$PAGE_TRACKER" > tmp.json && mv tmp.json "$PAGE_TRACKER"
 
           echo "GIF_PAGE=$GIF_PAGE" >> $GITHUB_ENV
@@ -29,11 +33,6 @@ jobs:
       - name: Set File Variables
         run: |
           mkdir -p gifs/en gifs/hi gifs/en/amp gifs/hi/amp gifs/en/details gifs/hi/details gifs/en/details/amp gifs/hi/details/amp
-
-          GIF_EN_PAGE="gifs/en/gif-${GIF_PAGE}.html"
-          GIF_HI_PAGE="gifs/hi/gif-${GIF_PAGE}.html"
-          AMP_EN_PAGE="gifs/en/amp/gif-${GIF_PAGE}.html"
-          AMP_HI_PAGE="gifs/hi/amp/gif-${GIF_PAGE}.html"
 
       - name: Fetch GIF Data from API
         run: |
@@ -57,35 +56,55 @@ jobs:
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <meta name="description" content="Trending GIFs in '$LANG'. Updated daily.">
+                <meta name="keywords" content="GIFs, trending GIFs, funny GIFs, '$LANG' memes">
                 <meta property="og:title" content="Trending GIFs - Day '$GIF_PAGE'">
                 <title>GIFs - Day '$GIF_PAGE'</title>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+                <!-- Google Analytics -->
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MSBCXJPYV"></script>
+                <script>
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag("js", new Date());
+                  gtag("config", "G-9MSBCXJPYV");
+                </script>
+
+                <!-- Google AdSense -->
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
+
             </head>
             <body>
                 <div class="container">
                     <h1>🔥 Trending GIFs ($LANG) - Day '$GIF_PAGE'</h1>
                     <div class="row">' > $OUTPUT_FILE
 
-            cat $JSON_FILE | jq -c '.gifs[]' | while read -r gif; do
+            count=0
+            cat $JSON_FILE | jq -c '.[]' | while read -r gif; do
+              if [ "$count" -ge 12 ]; then break; fi
               ID=$(echo "$gif" | jq -r '.id')
               TITLE=$(echo "$gif" | jq -r '.title')
-              IMAGE=$(echo "$gif" | jq -r '.gif_url')
+              SLUG=$(echo "$gif" | jq -r '.slug')
+              IMAGE="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/$(echo "$gif" | jq -r '.imageUrl')"
+              CONTRIBUTED_BY=$(echo "$gif" | jq -r '.contributedBy')
               DETAILS_PAGE="/gifs/$LANG/details/gif-$ID.html"
 
               echo '<div class="col-md-4">
                         <div class="gif-card">
                             <a href="'$DETAILS_PAGE'">
-                                <img src="'$IMAGE'" alt="'$TITLE'">
+                                <img src="'$IMAGE'" alt="'$TITLE'" class="img-fluid">
                                 <h5>'$TITLE'</h5>
                             </a>
+                            <p><small>Contributed by: '$CONTRIBUTED_BY'</small></p>
                         </div>
                     </div>' >> $OUTPUT_FILE
 
               generate_details_page "$LANG" "$ID"
+
+              count=$((count + 1))
             done
 
             echo '</div></div></body></html>' >> $OUTPUT_FILE
-
             cp $OUTPUT_FILE $AMP_OUTPUT_FILE
             sed -i 's/<img/<amp-img layout="responsive" width="500" height="500"/g' $AMP_OUTPUT_FILE
           }
@@ -104,25 +123,39 @@ jobs:
 
             curl -s "$DETAILS_JSON" > gif_details.json
             TITLE=$(cat gif_details.json | jq -r '.title')
-            IMAGE=$(cat gif_details.json | jq -r '.gif_url')
-            TAGS=$(cat gif_details.json | jq -r '.tags | join(", ")')
+            SLUG=$(cat gif_details.json | jq -r '.slug')
+            IMAGE="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/$(cat gif_details.json | jq -r '.imageUrl')"
+            CONTRIBUTED_BY=$(cat gif_details.json | jq -r '.contributedBy')
 
             echo '<!DOCTYPE html>
             <html lang="'$LANG'">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta name="description" content="'$TITLE' - GIF with tags: '$TAGS'">
+                <meta name="description" content="'$TITLE' - GIF from AskGif.">
                 <meta property="og:title" content="'$TITLE'">
                 <meta property="og:image" content="'$IMAGE'">
                 <title>'$TITLE'</title>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+                <!-- Google Analytics -->
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MSBCXJPYV"></script>
+                <script>
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag("js", new Date());
+                  gtag("config", "G-9MSBCXJPYV");
+                </script>
+
+                <!-- Google AdSense -->
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
+                
             </head>
             <body>
                 <div class="container text-center">
                     <h1>'$TITLE'</h1>
                     <img src="'$IMAGE'" alt="'$TITLE'" class="img-fluid">
-                    <p><strong>Tags:</strong> '$TAGS'</p>
+                    <p><strong>Contributed by:</strong> '$CONTRIBUTED_BY'</p>
                 </div>
             </body>
             </html>' > $DETAILS_FILE
@@ -130,14 +163,6 @@ jobs:
             cp $DETAILS_FILE $AMP_DETAILS_FILE
             sed -i 's/<img/<amp-img layout="responsive" width="500" height="500"/g' $AMP_DETAILS_FILE
           }
-
-          for ID in $(cat en_gifs.json | jq -r '.gifs[].id'); do
-            generate_details_page "en" "$ID"
-          done
-
-          for ID in $(cat hi_gifs.json | jq -r '.gifs[].id'); do
-            generate_details_page "hi" "$ID"
-          done
 
       - name: Commit and Push Changes
         run: |
