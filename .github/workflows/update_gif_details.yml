@@ -38,8 +38,40 @@ jobs:
 
       - name: Fetch GIF Details from API
         run: |
-          curl -s "$EN_GIF_API" > en_gif.json
-          curl -s "$HI_GIF_API" > hi_gif.json
+          EN_GIF_API="https://gif-api.askgif.com/gif/id/${GIF_ID}-en.json"
+          HI_GIF_API="https://gif-api.askgif.com/gif/id/${GIF_ID}-hi.json"
+
+          echo "Fetching English GIF from: $EN_GIF_API"
+          curl -s -o en_gif.json -w "%{http_code}" "$EN_GIF_API" > en_http_status.txt
+          EN_STATUS=$(cat en_http_status.txt)
+
+          echo "Fetching Hindi GIF from: $HI_GIF_API"
+          curl -s -o hi_gif.json -w "%{http_code}" "$HI_GIF_API" > hi_http_status.txt
+          HI_STATUS=$(cat hi_http_status.txt)
+
+          # Check for HTTP errors
+          if [ "$EN_STATUS" -ne 200 ]; then
+            echo "❌ Failed to fetch English GIF! HTTP Status: $EN_STATUS"
+            exit 1
+          fi
+
+          if [ "$HI_STATUS" -ne 200 ]; then
+            echo "❌ Failed to fetch Hindi GIF! HTTP Status: $HI_STATUS"
+            exit 1
+          fi
+
+          # Validate if response JSON is not empty
+          if [ ! -s en_gif.json ]; then
+            echo "❌ English GIF JSON is empty!"
+            exit 1
+          fi
+
+          if [ ! -s hi_gif.json ]; then
+            echo "❌ Hindi GIF JSON is empty!"
+            exit 1
+          fi
+
+          echo "✅ Successfully fetched GIF details."
 
       - name: Generate GIF Detail Pages
         run: |
@@ -50,7 +82,7 @@ jobs:
             TITLE=$(jq -r '.title' $JSON_FILE)
             SLUG=$(jq -r '.slug' $JSON_FILE)
             IMAGE="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/$(jq -r '.imageUrl' $JSON_FILE)"
-            CONTRIBUTED_BY=$(jq -r '.contributedBy' $JSON_FILE)"
+            CONTRIBUTED_BY=$(jq -r '.contributedBy' $JSON_FILE)
 
             DETAILS_FILE="gifs/$LANG/$SLUG.html"
             AMP_DETAILS_FILE="gifs/$LANG/amp/$SLUG.html"
