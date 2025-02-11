@@ -87,6 +87,7 @@ jobs:
             DETAILS_FILE="gifs/$LANG/$SLUG.html"
             AMP_DETAILS_FILE="gifs/$LANG/amp/$SLUG.html"
 
+            # ✅ Normal Responsive Page with AMP Link
             echo '<!DOCTYPE html>
             <html lang="'$LANG'">
             <head>
@@ -99,6 +100,9 @@ jobs:
                 <meta name="robots" content="index, follow">
                 <title>'$TITLE'</title>
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+                <!-- ✅ AMP Link for Search Engines -->
+                <link rel="amphtml" href="https://minitv.co.in/gifs/'$LANG'/amp/'$SLUG'.html">
 
                 <!-- Google Analytics -->
                 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MSBCXJPYV"></script>
@@ -117,14 +121,53 @@ jobs:
                     <h1>'$TITLE'</h1>
                     <img src="'$IMAGE'" alt="'$TITLE'" class="img-fluid">
                     <p><strong>Contributed by:</strong> '$CONTRIBUTED_BY'</p>
+                    <p><a href="https://minitv.co.in/gifs/'$LANG'/amp/'$SLUG'.html">📱 View AMP Version</a></p>
                 </div>
             </body>
             </html>' > $DETAILS_FILE
 
-            cp $DETAILS_FILE $AMP_DETAILS_FILE
-            sed -i 's/<img/<amp-img layout="responsive" width="500" height="500"/g' $AMP_DETAILS_FILE
+            # ✅ AMP Version of the Page
+            echo '<!DOCTYPE html>
+            <html ⚡ lang="'$LANG'">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <meta name="description" content="'$TITLE' - GIF from AskGif.">
+                <meta name="keywords" content="GIFs, funny GIFs, trending, '$LANG' memes">
+                <meta property="og:title" content="'$TITLE'">
+                <meta property="og:image" content="'$IMAGE'">
+                <meta name="robots" content="index, follow">
+                <title>'$TITLE'</title>
+                <link rel="canonical" href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">
+                <script async src="https://cdn.ampproject.org/v0.js"></script>
+                <style amp-boilerplate>body{visibility:hidden}body.amp-visible{visibility:visible}</style>
+                <script async custom-element="amp-img" src="https://cdn.ampproject.org/v0/amp-img-0.1.js"></script>
+                <style amp-custom>
+                  body { font-family: Arial, sans-serif; text-align: center; }
+                  .container { padding: 20px; }
+                </style>
 
-            echo "$SLUG" >> new_gifs.txt
+                <!-- Google Analytics -->
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-9MSBCXJPYV"></script>
+                <script>
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag("js", new Date());
+                  gtag("config", "G-9MSBCXJPYV");
+                </script>
+
+                <!-- Google AdSense -->
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>'$TITLE'</h1>
+                    <amp-img src="'$IMAGE'" layout="responsive" width="500" height="500"></amp-img>
+                    <p><strong>Contributed by:</strong> '$CONTRIBUTED_BY'</p>
+                    <p><a href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">🔗 View Full Page</a></p>
+                </div>
+            </body>
+            </html>' > $AMP_DETAILS_FILE
           }
 
           generate_gif_page "en" "en_gif.json"
