@@ -135,16 +135,24 @@ jobs:
                 <meta name="description" content="'$TITLE' - GIF from AskGif.">
                 <meta name="keywords" content="GIFs, funny GIFs, trending, '$LANG' memes">
                 <meta property="og:title" content="'$TITLE'">
-                <meta property="og:image" content="'$IMAGE'">
+                <meta property="og:image" content="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/'$IMAGE'">
                 <meta name="robots" content="index, follow">
                 <title>'$TITLE'</title>
                 <link rel="canonical" href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">
                 <script async src="https://cdn.ampproject.org/v0.js"></script>
-                <style amp-boilerplate>body{visibility:hidden}body.amp-visible{visibility:visible}</style>
                 <script async custom-element="amp-img" src="https://cdn.ampproject.org/v0/amp-img-0.1.js"></script>
+                
+                <style amp-boilerplate>
+                    body { visibility: hidden; opacity: 0; transition: opacity 0.5s; }
+                    body.amp-visible { visibility: visible; opacity: 1; }
+                </style>
+                <noscript>
+                    <style amp-boilerplate>body { visibility: visible; opacity: 1; }</style>
+                </noscript>
+                
                 <style amp-custom>
-                  body { font-family: Arial, sans-serif; text-align: center; }
-                  .container { padding: 20px; }
+                    body { font-family: Arial, sans-serif; text-align: center; background: #f8f9fa; }
+                    .container { padding: 20px; background: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
                 </style>
 
                 <!-- Google Analytics -->
@@ -162,7 +170,9 @@ jobs:
             <body>
                 <div class="container">
                     <h1>'$TITLE'</h1>
-                    <amp-img src="'$IMAGE'" layout="responsive" width="500" height="500"></amp-img>
+                    <amp-img src="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/'$IMAGE'"
+                            layout="responsive" width="500" height="500" alt="'$TITLE'">
+                    </amp-img>
                     <p><strong>Contributed by:</strong> '$CONTRIBUTED_BY'</p>
                     <p><a href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">🔗 View Full Page</a></p>
                 </div>
