@@ -40,12 +40,6 @@ jobs:
             echo '<url><loc>'"$POST_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.8</priority></url>' >> sitemap_news.xml
           done
 
-          # Add AMP news pages
-          for AMP_POST in $(ls posts/amp/*.html); do
-            AMP_URL="https://minitv.co.in/$AMP_POST"
-            echo '<url><loc>'"$AMP_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.6</priority></url>' >> sitemap_news.xml
-          done
-
           echo '</urlset>' >> sitemap_news.xml
 
       - name: Generate GIFs Sitemap
@@ -54,16 +48,10 @@ jobs:
           echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap_gifs.xml
           echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap_gifs.xml
           
-          # Add GIF pages
+          # Add GIF pages (Excluding AMP)
           for GIF in $(ls gifs/en/*.html gifs/hi/*.html); do
             GIF_URL="https://minitv.co.in/$GIF"
             echo '<url><loc>'"$GIF_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.8</priority></url>' >> sitemap_gifs.xml
-          done
-
-          # Add AMP GIF pages
-          for AMP_GIF in $(ls gifs/en/amp/*.html gifs/hi/amp/*.html); do
-            AMP_GIF_URL="https://minitv.co.in/$AMP_GIF"
-            echo '<url><loc>'"$AMP_GIF_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.6</priority></url>' >> sitemap_gifs.xml
           done
 
           echo '</urlset>' >> sitemap_gifs.xml
