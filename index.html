@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MiniTV - Your daily source for news and trending GIFs. Updated daily.">
-    <meta name="keywords" content="GIFs, trending GIFs, latest news, daily updates, MiniTV">
+    <meta name="description" content="MiniTV - Daily updates on news and trending GIFs. Stay informed and entertained.">
+    <meta name="keywords" content="news, world news, gifs, trending, funny gifs, daily updates">
     <meta name="author" content="MiniTV">
-    <meta property="og:title" content="MiniTV - Daily News and GIFs">
-    <meta property="og:description" content="Check out the latest GIFs and top daily news updates on MiniTV.">
+    <meta property="og:title" content="MiniTV - Daily News & GIFs">
+    <meta property="og:description" content="Explore the latest news headlines and trending GIFs on MiniTV. Updated daily.">
     <meta name="robots" content="index, follow">
-    <title>MiniTV - Latest News & GIFs</title>
+    <title>MiniTV - Daily News & Trending GIFs</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
     <!-- Google Analytics -->
@@ -23,51 +23,28 @@
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
-
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
-        .container { max-width: 900px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
-        h1, h2 { text-align: center; margin-bottom: 20px; }
-        ul { list-style-type: none; padding: 0; }
-        li { margin: 10px 0; }
-        a { text-decoration: none; color: #007bff; font-weight: bold; }
-        .gif-container { display: flex; flex-wrap: wrap; justify-content: center; }
-        .gif-card { margin: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; text-align: center; }
-        .gif-card img { width: 150px; height: auto; border-radius: 5px; }
-    </style>
-
 </head>
 <body>
     <div class="container">
         <h1>🚀 Welcome to MiniTV!</h1>
         <p>Your daily source for News and Trending GIFs.</p>
 
-        <h2>📰 Latest News Updates</h2>
+        <h2>📢 Latest Daily News</h2>
         <ul id="latest-news">
-<script>
-      fetch("sitemap.xml")
-      .then(response => response.text())
-      .then(data => {
-          let parser = new DOMParser();
-          let xml = parser.parseFromString(data, "text/xml");
-          let urls = xml.getElementsByTagName("loc");
-          let ul = document.getElementById("latest-news");
-          for (let i = 1; i < urls.length && i < 6; i++) { // Show last 5 news updates
-              let li = document.createElement("li");
-              let a = document.createElement("a");
-              a.href = urls[i].textContent;
-              a.textContent = urls[i].textContent.split("/").pop().replace(".html", "").replace("-", " ");
-              li.appendChild(a);
-              ul.appendChild(li);
-          }
-      });
-      </script>
+<li><a href="https://minitv.co.in/posts/2025-02-11.html">2025 02 11</a></li>
+<li><a href="https://minitv.co.in/posts/2025-02-12.html">2025 02 12</a></li>
+<li><a href="https://minitv.co.in/posts/amp/2025-02-10.html">2025 02 10</a></li>
+<li><a href="https://minitv.co.in/posts/amp/2025-02-11.html">2025 02 11</a></li>
+<li><a href="https://minitv.co.in/posts/amp/2025-02-12.html">2025 02 12</a></li>
 </ul>
-
-        <h2>🔥 Trending GIFs</h2>
-        <div class="gif-container">
-<p>No new GIFs available today.</p>
-</div>
+        <h2>🎭 Trending GIFs</h2>
+        <ul id="latest-gifs">
+<li><a href="https://minitv.co.in/gifs/hi/monday-morning.html">monday morning</a></li>
+<li><a href="https://minitv.co.in/gifs/en/amp/easily-fixing-a-lot-of-small-bugs.html">easily fixing a lot of small bugs</a></li>
+<li><a href="https://minitv.co.in/gifs/en/amp/monday-morning.html">monday morning</a></li>
+<li><a href="https://minitv.co.in/gifs/hi/amp/easily-fixing-a-lot-of-small-bugs.html">easily fixing a lot of small bugs</a></li>
+<li><a href="https://minitv.co.in/gifs/hi/amp/monday-morning.html">monday morning</a></li>
+</ul>
 
         <div class="ads-container">
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -81,7 +58,6 @@
                 (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
-
     </div>
 </body>
 </html>
