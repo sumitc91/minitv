@@ -12,33 +12,66 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Generate Sitemap
+      - name: Generate Root Sitemap
         run: |
           DATE=$(date +"%Y-%m-%d")
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
-          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
           
-          # Add homepage to the sitemap
-          echo '<url><loc>https://minitv.co.in/</loc><lastmod>'"$DATE"'</lastmod><priority>1.0</priority></url>' >> sitemap.xml
+          # Root Sitemap (Links to sub-sitemaps)
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap.xml
+          echo '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap.xml
+          
+          echo '<sitemap><loc>https://minitv.co.in/sitemap_news.xml</loc><lastmod>'"$DATE"'</lastmod></sitemap>' >> sitemap.xml
+          echo '<sitemap><loc>https://minitv.co.in/sitemap_gifs.xml</loc><lastmod>'"$DATE"'</lastmod></sitemap>' >> sitemap.xml
 
-          # Add post pages to sitemap
+          echo '</sitemapindex>' >> sitemap.xml
+
+      - name: Generate News Sitemap
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap_news.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap_news.xml
+          
+          # Add homepage
+          echo '<url><loc>https://minitv.co.in/</loc><lastmod>'"$DATE"'</lastmod><priority>1.0</priority></url>' >> sitemap_news.xml
+          
+          # Add News posts
           for POST in $(ls posts/*.html); do
             POST_URL="https://minitv.co.in/$POST"
-            echo '<url><loc>'"$POST_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.8</priority></url>' >> sitemap.xml
+            echo '<url><loc>'"$POST_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.8</priority></url>' >> sitemap_news.xml
           done
 
-          # Add AMP pages to sitemap
+          # Add AMP news pages
           for AMP_POST in $(ls posts/amp/*.html); do
             AMP_URL="https://minitv.co.in/$AMP_POST"
-            echo '<url><loc>'"$AMP_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.6</priority></url>' >> sitemap.xml
+            echo '<url><loc>'"$AMP_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.6</priority></url>' >> sitemap_news.xml
           done
 
-          echo '</urlset>' >> sitemap.xml
+          echo '</urlset>' >> sitemap_news.xml
+
+      - name: Generate GIFs Sitemap
+        run: |
+          DATE=$(date +"%Y-%m-%d")
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > sitemap_gifs.xml
+          echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' >> sitemap_gifs.xml
+          
+          # Add GIF pages
+          for GIF in $(ls gifs/en/*.html gifs/hi/*.html); do
+            GIF_URL="https://minitv.co.in/$GIF"
+            echo '<url><loc>'"$GIF_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.8</priority></url>' >> sitemap_gifs.xml
+          done
+
+          # Add AMP GIF pages
+          for AMP_GIF in $(ls gifs/en/amp/*.html gifs/hi/amp/*.html); do
+            AMP_GIF_URL="https://minitv.co.in/$AMP_GIF"
+            echo '<url><loc>'"$AMP_GIF_URL"'</loc><lastmod>'"$DATE"'</lastmod><priority>0.6</priority></url>' >> sitemap_gifs.xml
+          done
+
+          echo '</urlset>' >> sitemap_gifs.xml
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add sitemap.xml
-          git commit -m "Updated sitemap for $(date +"%Y-%m-%d")" || echo "No changes to commit"
+          git add sitemap.xml sitemap_news.xml sitemap_gifs.xml
+          git commit -m "Updated sitemap structure for $(date +"%Y-%m-%d")" || echo "No changes to commit"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/sumitc91/minitv.git main || echo "No changes to push"
