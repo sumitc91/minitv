@@ -170,9 +170,9 @@ jobs:
             <body>
                 <div class="container">
                     <h1>'$TITLE'</h1>
-                    <amp-img src="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/'$IMAGE'"
-                            layout="responsive" width="500" height="500" alt="'$TITLE'">
-                    </amp-img>
+                    <amp-anim src="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/'$IMAGE'"
+                              layout="responsive" width="500" height="500" alt="'$TITLE'">
+                    </amp-anim>
                     <p><strong>Contributed by:</strong> '$CONTRIBUTED_BY'</p>
                     <p><a href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">🔗 View Full Page</a></p>
                 </div>
