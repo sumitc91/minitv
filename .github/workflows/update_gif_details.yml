@@ -126,7 +126,7 @@ jobs:
             </body>
             </html>' > $DETAILS_FILE
 
-            # ✅ AMP Version of the Page
+            # ✅ AMP Version of the Page with AMP Animations
             echo '<!DOCTYPE html>
             <html ⚡ lang="'$LANG'">
             <head>
@@ -138,10 +138,14 @@ jobs:
                 <meta property="og:image" content="https://raw.githubusercontent.com/sumitc91/sumitc91.github.io/master/Gifs/'$IMAGE'">
                 <meta name="robots" content="index, follow">
                 <title>'$TITLE'</title>
+
+                <!-- Canonical Link -->
                 <link rel="canonical" href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">
+
+                <!-- AMP Scripts -->
                 <script async src="https://cdn.ampproject.org/v0.js"></script>
-                <script async custom-element="amp-img" src="https://cdn.ampproject.org/v0/amp-img-0.1.js"></script>
-                
+                <script async custom-element="amp-anim" src="https://cdn.ampproject.org/v0/amp-anim-0.1.js"></script>
+
                 <style amp-boilerplate>
                     body { visibility: hidden; opacity: 0; transition: opacity 0.5s; }
                     body.amp-visible { visibility: visible; opacity: 1; }
@@ -149,7 +153,7 @@ jobs:
                 <noscript>
                     <style amp-boilerplate>body { visibility: visible; opacity: 1; }</style>
                 </noscript>
-                
+
                 <style amp-custom>
                     body { font-family: Arial, sans-serif; text-align: center; background: #f8f9fa; }
                     .container { padding: 20px; background: white; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
@@ -170,9 +174,16 @@ jobs:
             <body>
                 <div class="container">
                     <h1>'$TITLE'</h1>
-                    <amp-anim layout="responsive" width="500" height="500" src="'$IMAGE'" alt="'$TITLE'">
-                      <amp-img placeholder layout="responsive" width="500" height="500" src="'$IMAGE'"></amp-img>
+
+                    <!-- AMP-Optimized GIF -->
+                    <amp-anim layout="responsive" width="500" height="500"
+                              src="'$IMAGE'"
+                              alt="'$TITLE'">
+                        <amp-img placeholder layout="responsive" width="500" height="500"
+                                src="'$IMAGE'">
+                        </amp-img>
                     </amp-anim>
+
                     <p><strong>Contributed by:</strong> '$CONTRIBUTED_BY'</p>
                     <p><a href="https://minitv.co.in/gifs/'$LANG'/'$SLUG'.html">🔗 View Full Page</a></p>
                 </div>
