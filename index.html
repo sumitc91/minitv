@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="MiniTV - Your daily source for news, crypto, and stock market updates. Stay updated with the latest trends.">
-    <meta name="keywords" content="news, world news, crypto prices, stock market, latest updates">
+    <meta name="description" content="MiniTV - Your daily source for news and trending GIFs. Updated daily.">
+    <meta name="keywords" content="GIFs, trending GIFs, latest news, daily updates, MiniTV">
     <meta name="author" content="MiniTV">
-    <meta property="og:title" content="MiniTV - Daily News and Updates">
-    <meta property="og:description" content="Get the latest news, cryptocurrency prices, and stock market updates on MiniTV.">
+    <meta property="og:title" content="MiniTV - Daily News and GIFs">
+    <meta property="og:description" content="Check out the latest GIFs and top daily news updates on MiniTV.">
     <meta name="robots" content="index, follow">
-    <title>MiniTV - Latest News, Crypto & Stocks</title>
+    <title>MiniTV - Latest News & GIFs</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
     <!-- Google Analytics -->
@@ -24,13 +24,25 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1068871795581451" crossorigin="anonymous"></script>
 
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f8f9fa; }
+        .container { max-width: 900px; margin: auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; margin-bottom: 20px; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin: 10px 0; }
+        a { text-decoration: none; color: #007bff; font-weight: bold; }
+        .gif-container { display: flex; flex-wrap: wrap; justify-content: center; }
+        .gif-card { margin: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; text-align: center; }
+        .gif-card img { width: 150px; height: auto; border-radius: 5px; }
+    </style>
+
 </head>
 <body>
     <div class="container">
         <h1>🚀 Welcome to MiniTV!</h1>
-        <p>Your daily source for News, Crypto, and Stock Updates.</p>
+        <p>Your daily source for News and Trending GIFs.</p>
 
-        <h2>📢 Latest Daily News</h2>
+        <h2>📰 Latest News Updates</h2>
         <ul id="latest-news">
 <script>
       fetch("sitemap.xml")
@@ -51,11 +63,11 @@
       });
       </script>
 </ul>
-        <h2>📊 Stock Market Updates</h2>
-        <p>🔴 NASDAQ: 80.29 | 🔵 S&P 500:  | 🟢 Dow Jones: </p>
 
-        <h2>💰 Cryptocurrency Prices</h2>
-        <p>🔥 Bitcoin: $96037 | 🚀 Ethereum: $2613.62 | 🌐 Dogecoin: $0.253604</p>
+        <h2>🔥 Trending GIFs</h2>
+        <div class="gif-container">
+<p>No new GIFs available today.</p>
+</div>
 
         <div class="ads-container">
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
